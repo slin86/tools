@@ -18,7 +18,7 @@ import hvac
 # ---------------------------------------------------------------------------
 # CONFIG - edit these values
 # ---------------------------------------------------------------------------
-VAULT_ADDR = "https://vault.hochbahn.cloud"
+VAULT_ADDR = "https://..."
 VAULT_TOKEN = ""
 VAULT_MOUNT = "kv"
 KV_VERSION = 2
