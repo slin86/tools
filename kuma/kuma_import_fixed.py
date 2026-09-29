@@ -246,7 +246,7 @@ def import_monitors(
         if not dry_run:
             try:
                 result = api.add_monitor(**kwargs)
-                new_id = result.get("monitorId")
+                new_id = result.get("monitorID")
                 if "id" in m:
                     old_id_to_new_id[m["id"]] = new_id
                 print(f"     ✅ Erstellt mit ID {new_id}")
@@ -352,9 +352,21 @@ def main():
     if args.dry_run:
         print("\n⚠️  DRY-RUN Modus – es werden keine Daten verändert\n")
 
+    # Uncomment, if
+    # xsrf_value = "..."
+    # session_value = "..."
+    # filter_value = "..."
+    #
+    # extra_headers = {
+    #     "Cookie": f"ambassador_session.{filter_value}.ambassador={session_value}; "
+    #               f"ambassador_xsrf.{filter_value}.ambassador={xsrf_value}",
+    #     "X-XSRF-Token": xsrf_value,
+    # }
+
     print(f"\n🔌 Verbinde mit {args.url} ...")
     try:
-        with UptimeKumaApi(args.url) as api:
+
+        with UptimeKumaApi(args.url, headers=extra_headers or None) as api:
             api.login(args.username, args.password)
             print("✅ Login erfolgreich\n")
 
