@@ -12,10 +12,10 @@ glab api --hostname "$host" --paginate "projects?membership=true&archived=false&
     dest="gitlab/$host/$path"
     if [ -d "$dest/.git" ]; then
       echo "update  $path"
-      git -C "$dest" fetch --all --prune --quiet || echo "FAILED  $path" >&2
+      git -C "$dest" fetch --all --prune --quiet </dev/null || echo "FAILED  $path" >&2
     else
       echo "clone   $path"
       mkdir -p "$(dirname "$dest")"
-      git clone --quiet "$repo" "$dest" || echo "FAILED  $path" >&2
+      git clone --quiet "$repo" "$dest" </dev/null || echo "FAILED  $path" >&2
     fi
   done
