@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-# Usage: ./gitlab-clone-short.sh <gitlab-hostname> [group/subgroup/project]
-# Clone or update all projects of one GitLab (or just the given project) via SSH
+# Usage: ./gitlab-clone-short.sh <gitlab-hostname> [group-or-project-path]
+# Clone or update all projects of one GitLab, a group incl. subgroups, or a single project via SSH
 # into ./gitlab/<host>/<group>/<project>.
 # Needs: git, jq, glab (logged in for that host), SSH key registered in GitLab.
 set -euo pipefail
 
-host="${1:?Usage: $0 <gitlab-hostname> [group/subgroup/project]}"
+host="${1:?Usage: $0 <gitlab-hostname> [group-or-project-path]}"
 
 if [ -n "${2:-}" ]; then
-  endpoint="projects/${2//\//%2F}"
+  enc="${2//\//%2F}"
+  if glab api --hostname "$host" "groups/$enc" >/dev/null 2>&1; then
+    endpoint="groups/$enc/projects?include_subgroups=true&archived=false&simple=true&per_page=100"
+  else
+    endpoint="projects/$enc"
+  fi
 else
   endpoint="projects?membership=true&archived=false&simple=true&per_page=100"
 fi
