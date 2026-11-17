@@ -16,9 +16,15 @@ host="${1:?Usage: $0 <gitlab-hostname>}"
 for group in "${GITLAB_GROUPS[@]}"; do
   echo "== $group"
   for ((page = 1; ; page++)); do
-    json="$(curl -fsS -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+    resp="$(curl -sS -H "PRIVATE-TOKEN: $GITLAB_TOKEN" -w $'\n%{http_code}' \
       "https://$host/api/v4/groups/${group//\//%2F}/projects?include_subgroups=true&archived=false&per_page=100&page=$page")" ||
-      { echo "FAILED  group $group (API error)" >&2; break; }
+      { echo "FAILED  group $group (curl error)" >&2; break; }
+    code="${resp##*$'\n'}"
+    json="${resp%$'\n'*}"
+    if [ "$code" != 200 ] || ! jq -e 'type == "array"' <<<"$json" >/dev/null 2>&1; then
+      echo "FAILED  group $group page $page: HTTP $code: $(head -c 300 <<<"$json")" >&2
+      break
+    fi
     [ "$(jq length <<<"$json")" -eq 0 ] && break
     while read -r path repo; do
       dest="gitlab/$host/$path"
